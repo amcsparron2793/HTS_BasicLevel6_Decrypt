@@ -175,7 +175,8 @@ class Error:
     def get_err_msg(self, exception):
         """ Get the exception that was encountered and format it. """
         try:
-            msg = ('Error Occurred: {err}, \nsee logs at '.format(err=exception.args)
+            msg = ('Error Occurred: \'{err}\', \nsee logs at '.format(err=
+                                                                      [x for x in exception.args if x is not None][0])
                    + str(self.err_file))
             return msg
         except AttributeError as e:
@@ -215,10 +216,9 @@ class Error:
 
     def error_write(self):
         """ Write the error encountered to the log. """
-        # TODO: add traceback
         sys.stderr.write('\n' + self.err_header)
         for x in sys.exc_info():
             sys.stderr.write('\n' + str(x))
         sys.stderr.write('\n******** Full exc_info below ***********\n')
-        sys.stderr.write(traceback.print_tb(sys.last_traceback))
+        traceback.print_tb(sys.exc_info()[2])
         sys.stderr.write('\n******** END ***********\n')
