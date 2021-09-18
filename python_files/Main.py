@@ -88,7 +88,7 @@ def get_docs():
             print(e)
 
 
-if __name__ == '__main__':
+def doc_check():
     if not isfile(doc_check_token_path):
         if py_ver_float <= 2.9:
             print("Program Documentation could not be generated, please use python 3 or greater.")
@@ -111,4 +111,7 @@ if __name__ == '__main__':
         print("no_doc_check_token detected, "
               "to check for documentation please delete {}".format(doc_check_token_path))
 
+
+if __name__ == '__main__':
+    doc_check()
     main_func(dev=False)
