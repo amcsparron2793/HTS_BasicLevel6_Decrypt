@@ -18,6 +18,8 @@ from prompt_toolkit.output.win32 import NoConsoleScreenBufferError
 
 
 class ChooseCrypt:
+    """Prompts user for decryption or encryption of string, using questionary."""
+
     def __init__(self):
         self.err = Clog.Error()
         self.err.error_setup()
@@ -25,6 +27,7 @@ class ChooseCrypt:
         self.AskType()
 
     def AskType(self):
+        """Asks user if they want to encrypt or decrypt."""
         try:
             q = questionary.select(message="Would you like to Encrypt, or Decrypt",
                                    choices=["Decrypt", "Encrypt"]).ask()
@@ -32,11 +35,13 @@ class ChooseCrypt:
             self.err.error_handle(e)
         except NoConsoleScreenBufferError as e:
             self.err.error_handle(e)
-
-        if q == "Decrypt":
-            DecryptString()
-        elif q == "Encrypt":
-            EncryptString()
+        try:
+            if q == "Decrypt":
+                DecryptString()
+            elif q == "Encrypt":
+                EncryptString()
+        except UnboundLocalError as e:
+            self.err.error_handle(e)
 
 
 class _CryptParent:
