@@ -161,6 +161,7 @@ class _CryptParent:
         if not f_out:
             print(''.join(chr_list))
         if f_out:
+            # FIXME: this needs to be custom... or at least marked as encrypt or decrypt
             with open("../Misc_Project_Files/file_out.txt", "w") as f:
                 f.write(''.join(chr_list))
 
