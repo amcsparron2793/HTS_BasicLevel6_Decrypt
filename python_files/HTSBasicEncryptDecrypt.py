@@ -8,6 +8,7 @@ https://www.HackThisSite.org/missions/basic/6 challenge.
 """
 
 # imports
+from os import getcwd
 from sys import version_info
 
 import dependencies.CustomLog_Classes as Clog
@@ -56,8 +57,7 @@ class ChooseCrypt:
 
     def AskFilePath(self):
         try:
-            q = questionary.path(message="Please enter the full filepath").ask()
-            print(q)
+            q = questionary.path(message="Please enter the full filepath (pwd is \'{}\')".format(getcwd())).ask()
             return q
         except questionary.ValidationError as e:
             self.err.error_handle(e)
@@ -156,13 +156,18 @@ class _CryptParent:
                 try:
                     chr_list.append(chr(x[y]))
                 except ValueError as e:
+                    # FIXME: figure out which values are not in range
                     print("character went out of ASCII range.")
                     self.err.error_handle_no_exit_quiet(e)
+                    continue
         if not f_out:
             print(''.join(chr_list))
         if f_out:
             with open("../Misc_Project_Files/file_out.txt", "w") as f:
-                f.write(''.join(chr_list))
+                try:
+                    f.write(''.join(chr_list))
+                except UnicodeEncodeError as e:
+                    self.err.error_handle(e)
 
 
 # noinspection PyAttributeOutsideInit
