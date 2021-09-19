@@ -24,8 +24,10 @@ class PrepFile:
         self.err.error_setup()
 
         self.content_string = self.GetContentAsString(self.filepath)
-        global content
+
+    def return_content(self):
         content = self.content_string
+        return content
 
     def GetContentAsString(self, filepath):
         try:
@@ -40,6 +42,7 @@ class PrepFile:
             self.err.error_handle(e)
 
 
+# noinspection PyAttributeOutsideInit
 class ChooseCrypt:
     """Prompts user for decryption or encryption of string, using questionary."""
 
@@ -55,6 +58,7 @@ class ChooseCrypt:
         try:
             q = questionary.path(message="Please enter the full filepath").ask()
             print(q)
+            return q
         except questionary.ValidationError as e:
             self.err.error_handle(e)
         except NoConsoleScreenBufferError as e:
@@ -70,10 +74,11 @@ class ChooseCrypt:
             self.err.error_handle(e)
 
         if q == "string":
+            self.file_content = None
             return False
         elif q == "file":
-            # FIXME: global var content comes back as None
-            PrepFile(self.AskFilePath())
+            pf = PrepFile(self.AskFilePath())
+            self.file_content = pf.return_content()
             return True
 
     def AskCryptType(self):
@@ -87,9 +92,9 @@ class ChooseCrypt:
             self.err.error_handle(e)
         try:
             if q == "Decrypt":
-                DecryptString(self.boolFileString)
+                DecryptString(self.file_content, self.boolFileString)
             elif q == "Encrypt":
-                EncryptString(self.boolFileString)
+                EncryptString(self.file_content, self.boolFileString)
         except UnboundLocalError as e:
             self.err.error_handle(e)
 
@@ -144,30 +149,39 @@ class _CryptParent:
         # print(string_dict_list)
         return string_dict_list
 
-    def convert_to_chr(self):
+    def convert_to_chr(self, f_out):
         chr_list = []
         for x in self.transformed_ascii_values:
             for y in x.keys():
-                chr_list.append(chr(x[y]))
-        print(''.join(chr_list))
+                try:
+                    chr_list.append(chr(x[y]))
+                except ValueError as e:
+                    print("character went out of ASCII range.")
+                    self.err.error_handle_no_exit_quiet(e)
+        if not f_out:
+            print(''.join(chr_list))
+        if f_out:
+            with open("../Misc_Project_Files/file_out.txt", "w") as f:
+                f.write(''.join(chr_list))
 
 
 # noinspection PyAttributeOutsideInit
 class DecryptString(_CryptParent):
     """ Decrypt a given string based on HTS basic level 6."""
 
-    def __init__(self, file=False):
+    def __init__(self, filecontent, file=False):
         super().__init__()
         self.file = file
+        self.file_content = filecontent
         if not self.file:
             self.text_to_crypt = self.GetTextToCrypt("Decrypt")
         else:
-            self.text_to_crypt = content
+            self.text_to_crypt = self.file_content
 
         self.string_dict_list = self.MakeStringDictList()
 
         self.transformed_ascii_values = self.TransformString()
-        self.convert_to_chr()
+        self.convert_to_chr(self.file)
 
     def TransformString(self):
         for x in self.string_dict_list:
@@ -180,18 +194,19 @@ class DecryptString(_CryptParent):
 class EncryptString(_CryptParent):
     """ Encrypt a given string based on HTS basic level 6"""
 
-    def __init__(self, file=False):
+    def __init__(self, filecontent, file=False):
         super().__init__()
         self.file = file
+        self.file_content = filecontent
         if not self.file:
             self.text_to_crypt = self.GetTextToCrypt("Encrypt")
         else:
-            self.text_to_crypt = content
+            self.text_to_crypt = self.file_content
 
         self.string_dict_list = self.MakeStringDictList()
 
         self.transformed_ascii_values = self.TransformString()
-        self.convert_to_chr()
+        self.convert_to_chr(self.file)
 
     def TransformString(self):
         for x in self.string_dict_list:
