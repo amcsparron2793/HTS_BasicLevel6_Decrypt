@@ -17,6 +17,29 @@ import questionary
 from prompt_toolkit.output.win32 import NoConsoleScreenBufferError
 
 
+class PrepFile:
+    def __init__(self, filepath):
+        self.filepath = filepath
+        self.err = Clog.Error()
+        self.err.error_setup()
+
+        self.content_string = self.GetContentAsString(self.filepath)
+        global content
+        content = self.content_string
+
+    def GetContentAsString(self, filepath):
+        try:
+            with open(filepath) as f:
+                content_string = f.read()
+                return content_string
+
+        except FileNotFoundError as e:
+            self.err.error_handle(e)
+
+        except IOError as e:
+            self.err.error_handle(e)
+
+
 class ChooseCrypt:
     """Prompts user for decryption or encryption of string, using questionary."""
 
@@ -24,9 +47,36 @@ class ChooseCrypt:
         self.err = Clog.Error()
         self.err.error_setup()
 
-        self.AskType()
+        self.boolFileString = self.AskFileOrString()
 
-    def AskType(self):
+        self.AskCryptType()
+
+    def AskFilePath(self):
+        try:
+            q = questionary.path(message="Please enter the full filepath").ask()
+            print(q)
+        except questionary.ValidationError as e:
+            self.err.error_handle(e)
+        except NoConsoleScreenBufferError as e:
+            self.err.error_handle(e)
+
+    def AskFileOrString(self):
+        try:
+            q = questionary.select(message="Is the input type a file or a string?",
+                                   choices=["string", "file"]).ask()
+        except questionary.ValidationError as e:
+            self.err.error_handle(e)
+        except NoConsoleScreenBufferError as e:
+            self.err.error_handle(e)
+
+        if q == "string":
+            return False
+        elif q == "file":
+            # FIXME: global var content comes back as None
+            PrepFile(self.AskFilePath())
+            return True
+
+    def AskCryptType(self):
         """Asks user if they want to encrypt or decrypt."""
         try:
             q = questionary.select(message="Would you like to Encrypt, or Decrypt",
@@ -37,9 +87,9 @@ class ChooseCrypt:
             self.err.error_handle(e)
         try:
             if q == "Decrypt":
-                DecryptString()
+                DecryptString(self.boolFileString)
             elif q == "Encrypt":
-                EncryptString()
+                EncryptString(self.boolFileString)
         except UnboundLocalError as e:
             self.err.error_handle(e)
 
@@ -106,9 +156,13 @@ class _CryptParent:
 class DecryptString(_CryptParent):
     """ Decrypt a given string based on HTS basic level 6."""
 
-    def __init__(self):
+    def __init__(self, file=False):
         super().__init__()
-        self.text_to_crypt = self.GetTextToCrypt("Decrypt")
+        self.file = file
+        if not self.file:
+            self.text_to_crypt = self.GetTextToCrypt("Decrypt")
+        else:
+            self.text_to_crypt = content
 
         self.string_dict_list = self.MakeStringDictList()
 
@@ -126,9 +180,13 @@ class DecryptString(_CryptParent):
 class EncryptString(_CryptParent):
     """ Encrypt a given string based on HTS basic level 6"""
 
-    def __init__(self):
+    def __init__(self, file=False):
         super().__init__()
-        self.text_to_crypt = self.GetTextToCrypt("Encrypt")
+        self.file = file
+        if not self.file:
+            self.text_to_crypt = self.GetTextToCrypt("Encrypt")
+        else:
+            self.text_to_crypt = content
 
         self.string_dict_list = self.MakeStringDictList()
 
