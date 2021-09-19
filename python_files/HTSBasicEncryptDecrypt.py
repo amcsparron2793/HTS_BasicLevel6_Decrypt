@@ -9,12 +9,39 @@ https://www.HackThisSite.org/missions/basic/6 challenge.
 
 # imports
 from sys import version_info
+
 import dependencies.CustomLog_Classes as Clog
 from dependencies.yes_no import yes_no_loop as yn
+
+import questionary
+from prompt_toolkit.output.win32 import NoConsoleScreenBufferError
+
+
+class ChooseCrypt:
+    def __init__(self):
+        self.err = Clog.Error()
+        self.err.error_setup()
+
+        self.AskType()
+
+    def AskType(self):
+        try:
+            q = questionary.select(message="Would you like to Encrypt, or Decrypt",
+                                   choices=["Decrypt", "Encrypt"]).ask()
+        except questionary.ValidationError as e:
+            self.err.error_handle(e)
+        except NoConsoleScreenBufferError as e:
+            self.err.error_handle(e)
+
+        if q == "Decrypt":
+            DecryptString()
+        elif q == "Encrypt":
+            EncryptString()
 
 
 class _CryptParent:
     """ All of these methods are common to both encryption and decryption."""
+
     def __init__(self):
         self.transformed_ascii_values = None
         self.text_to_crypt = None
@@ -73,6 +100,7 @@ class _CryptParent:
 # noinspection PyAttributeOutsideInit
 class DecryptString(_CryptParent):
     """ Decrypt a given string based on HTS basic level 6."""
+
     def __init__(self):
         super().__init__()
         self.text_to_crypt = self.GetTextToCrypt("Decrypt")
@@ -92,6 +120,7 @@ class DecryptString(_CryptParent):
 # noinspection PyAttributeOutsideInit
 class EncryptString(_CryptParent):
     """ Encrypt a given string based on HTS basic level 6"""
+
     def __init__(self):
         super().__init__()
         self.text_to_crypt = self.GetTextToCrypt("Encrypt")

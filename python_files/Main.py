@@ -53,7 +53,7 @@ py_ver_float = float(str(version_info.major) + '.' + str(version_info.minor))
 def main_func(dev=False):
     """ Main Program function. """
     if not dev:
-        BasicEncDec.EncryptString()
+        BasicEncDec.ChooseCrypt()
     elif dev:
         if version_info.major == 3:
             print("checking for docstrings now...")
