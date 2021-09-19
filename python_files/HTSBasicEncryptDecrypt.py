@@ -3,6 +3,8 @@ HTSBasicEncryptDecrypt.py
 
 Script to encrypt and decrypt a given string based on algorithm used in
 https://www.HackThisSite.org/missions/basic/6 challenge.
+
+# ord() changes a character to ASCII, chr() changes from ASCII to character
 """
 
 # imports
@@ -10,63 +12,44 @@ from sys import version_info
 import dependencies.CustomLog_Classes as Clog
 from dependencies.yes_no import yes_no_loop as yn
 
-# ord() changes a character to ASCII, chr() changes from ASCII to character
 
-
-# noinspection PyAttributeOutsideInit
-class EncryptString:
-    """ Encrypt a given string based on HTS basic level 6"""
+class _CryptParent:
+    """ All of these methods are common to both encryption and decryption."""
     def __init__(self):
+        self.transformed_ascii_values = None
+        self.text_to_crypt = None
         self.pyver = float(str(version_info.major) + "." + str(version_info.minor))
-        self.plain_text = self.GetPlainText()
+
         self.err = Clog.Error()
         self.err.error_setup()
 
-    def GetPlainText(self):
+    # noinspection PyUnboundLocalVariable
+    def GetTextToCrypt(self, crypt_type):
+        if crypt_type.lower() == "encrypt":
+            t1 = "plain"
+            t2 = "encrypted"
+        elif crypt_type.lower() == "decrypt":
+            t1 = "encrypted"
+            t2 = "decrypted"
+        else:
+            try:
+                raise AttributeError("crypt_type can only be \'encrypt\' or \'decrypt\'")
+            except AttributeError as e:
+                self.err.error_handle(e)
+
         while True:
             if self.pyver >= 3:
-                plain_text = input("Please enter plain text to be encrypted: ")
+                input_text = input("Please enter {} text to be {}: ".format(t1, t2))
             elif self.pyver < 3:
-                plain_text = raw_input("Please enter plain text to be encrypted: ")
+                input_text = raw_input("Please enter {} text to be {}: ".format(t1, t2))
             else:
-                plain_text = input("Please enter plain text to be encrypted: ")
+                input_text = input("Please enter {} text to be {}: ".format(t1, t2))
 
-            if plain_text:
-                return plain_text
-            elif not plain_text:
-                if yn("plain text cannot be blank, would you like to try again?"):
-                    pass
-                else:
-                    print("Ok Quitting...")
-                    exit()
+            if input_text:
+                return input_text
 
-
-# noinspection PyAttributeOutsideInit
-class DecryptString:
-    """ Decrypt a given string based on HTS basic level 6."""
-    def __init__(self):
-        self.pyver = float(str(version_info.major) + "." + str(version_info.minor))
-        self.encrypted_text = self.GetEncryptedText()
-        self.err = Clog.Error()
-        self.err.error_setup()
-        self.string_dict_list = self.MakeStringDictList()
-        self.transformed_ascii_values = self.TransformString()
-        self.convert_to_chr()
-
-    def GetEncryptedText(self):
-        while True:
-            if self.pyver >= 3:
-                encrypted_text = input("Please enter Encrypted text to be unencrypted: ")
-            elif self.pyver < 3:
-                encrypted_text = raw_input("Please enter Encrypted text to be unencrypted: ")
-            else:
-                encrypted_text = input("Please enter Encrypted text to be unencrypted: ")
-
-            if encrypted_text:
-                return encrypted_text
-
-            elif not encrypted_text:
-                if yn("encrypted text cannot be blank, would you like to try again?"):
+            elif not input_text:
+                if yn("input text cannot be blank, would you like to try again?"):
                     pass
                 else:
                     print("Ok Quitting...")
@@ -74,16 +57,10 @@ class DecryptString:
 
     def MakeStringDictList(self):
         string_dict_list = []
-        for x in range(len(self.encrypted_text)):
-            string_dict_list.append({x: ord(self.encrypted_text[x])})
-        print(string_dict_list)
+        for x in range(len(self.text_to_crypt)):
+            string_dict_list.append({x: ord(self.text_to_crypt[x])})
+        # print(string_dict_list)
         return string_dict_list
-
-    def TransformString(self):
-        for x in self.string_dict_list:
-            for y in x.keys():
-                x[y] = x[y] - y
-        return self.string_dict_list
 
     def convert_to_chr(self):
         chr_list = []
@@ -93,4 +70,39 @@ class DecryptString:
         print(''.join(chr_list))
 
 
-DecryptString()
+# noinspection PyAttributeOutsideInit
+class DecryptString(_CryptParent):
+    """ Decrypt a given string based on HTS basic level 6."""
+    def __init__(self):
+        super().__init__()
+        self.text_to_crypt = self.GetTextToCrypt("Decrypt")
+
+        self.string_dict_list = self.MakeStringDictList()
+
+        self.transformed_ascii_values = self.TransformString()
+        self.convert_to_chr()
+
+    def TransformString(self):
+        for x in self.string_dict_list:
+            for y in x.keys():
+                x[y] = x[y] - y
+        return self.string_dict_list
+
+
+# noinspection PyAttributeOutsideInit
+class EncryptString(_CryptParent):
+    """ Encrypt a given string based on HTS basic level 6"""
+    def __init__(self):
+        super().__init__()
+        self.text_to_crypt = self.GetTextToCrypt("Encrypt")
+
+        self.string_dict_list = self.MakeStringDictList()
+
+        self.transformed_ascii_values = self.TransformString()
+        self.convert_to_chr()
+
+    def TransformString(self):
+        for x in self.string_dict_list:
+            for y in x.keys():
+                x[y] = x[y] + y
+        return self.string_dict_list
