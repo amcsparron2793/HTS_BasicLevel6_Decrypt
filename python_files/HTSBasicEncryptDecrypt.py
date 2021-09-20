@@ -9,6 +9,7 @@ https://www.HackThisSite.org/missions/basic/6 challenge.
 
 # imports
 from sys import version_info
+from datetime import datetime
 
 import dependencies.CustomLog_Classes as Clog
 from dependencies.yes_no import yes_no_loop as yn
@@ -99,6 +100,7 @@ class ChooseCrypt:
             self.err.error_handle(e)
 
 
+# noinspection PyAttributeOutsideInit
 class _CryptParent:
     """ All of these methods are common to both encryption and decryption."""
 
@@ -112,10 +114,12 @@ class _CryptParent:
 
     # noinspection PyUnboundLocalVariable
     def GetTextToCrypt(self, crypt_type):
-        if crypt_type.lower() == "encrypt":
+        self.crypt_type = crypt_type
+
+        if self.crypt_type.lower() == "encrypt":
             t1 = "plain"
             t2 = "encrypted"
-        elif crypt_type.lower() == "decrypt":
+        elif self.crypt_type.lower() == "decrypt":
             t1 = "encrypted"
             t2 = "decrypted"
         else:
@@ -133,7 +137,7 @@ class _CryptParent:
                 input_text = input("Please enter {} text to be {}: ".format(t1, t2))
 
             if input_text:
-                return input_text
+                return input_text, self.crypt_type
 
             elif not input_text:
                 if yn("input text cannot be blank, would you like to try again?"):
@@ -162,7 +166,8 @@ class _CryptParent:
             print(''.join(chr_list))
         if f_out:
             # FIXME: this needs to be custom... or at least marked as encrypt or decrypt
-            with open("../Misc_Project_Files/file_out.txt", "w") as f:
+            with open("../Misc_Project_Files/file_out_{}.txt".format(('{:%m-%d-%Y_%H-%M_00}'.format(
+                                                                       datetime.now()))), "w") as f:
                 f.write(''.join(chr_list))
 
 
