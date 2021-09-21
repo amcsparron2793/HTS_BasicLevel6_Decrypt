@@ -8,6 +8,7 @@ https://www.HackThisSite.org/missions/basic/6 challenge.
 """
 
 # imports
+from os import system
 from sys import version_info
 from datetime import datetime
 
@@ -171,7 +172,9 @@ class _CryptParent:
                     print("character went out of ASCII range.")
                     self.err.error_handle_no_exit_quiet(e)
         if not f_out:
+            print("{}ed String:".format(crypt_type))
             print(''.join(chr_list))
+            system("pause")
         if f_out:
             with open("../Misc_Project_Files/{}_out_{}.txt".format(crypt_type, ('{:%m-%d-%Y_%H-%M_00}'.format(
                                                                        datetime.now()))), "w") as f:
@@ -187,7 +190,7 @@ class DecryptString(_CryptParent):
         self.file = file
         self.file_content = filecontent
         if not self.file:
-            self.text_to_crypt = self.GetTextToCrypt("Decrypt")
+            self.text_to_crypt, self.crypt_type = self.GetTextToCrypt("Decrypt")
         else:
             self.text_to_crypt = self.file_content
 
