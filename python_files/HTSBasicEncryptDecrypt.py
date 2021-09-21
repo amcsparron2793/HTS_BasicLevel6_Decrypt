@@ -19,6 +19,7 @@ from prompt_toolkit.output.win32 import NoConsoleScreenBufferError
 
 
 class PrepFile:
+    """ Open and read a given file into a string. This string is then returned for further processing."""
     def __init__(self, filepath):
         self.filepath = filepath
         self.err = Clog.Error()
@@ -27,10 +28,12 @@ class PrepFile:
         self.content_string = self.GetContentAsString(self.filepath)
 
     def return_content(self):
+        """ Returns the content string so that it can be used outside of PrepFile. """
         content = self.content_string
         return content
 
     def GetContentAsString(self, filepath):
+        """ Opens the given file, reads it into one giant string and returns the value. """
         try:
             with open(filepath) as f:
                 content_string = f.read()
@@ -46,7 +49,6 @@ class PrepFile:
 # noinspection PyAttributeOutsideInit
 class ChooseCrypt:
     """Prompts user for decryption or encryption of string, using questionary."""
-
     def __init__(self):
         self.err = Clog.Error()
         self.err.error_setup()
@@ -56,6 +58,7 @@ class ChooseCrypt:
         self.AskCryptType()
 
     def AskFilePath(self):
+        """ Get the path to the file to be encrypted/decrypted. """
         try:
             q = questionary.path(message="Please enter the full filepath").ask()
             print(q)
@@ -66,6 +69,7 @@ class ChooseCrypt:
             self.err.error_handle(e)
 
     def AskFileOrString(self):
+        """ Ask if a whole file should be converted, or just a single string. """
         try:
             q = questionary.select(message="Is the input type a file or a string?",
                                    choices=["string", "file"]).ask()
@@ -115,6 +119,7 @@ class _CryptParent:
 
     # noinspection PyUnboundLocalVariable
     def GetTextToCrypt(self, crypt_type):
+        """if the user only wants a string converted, get the string from user input."""
         self.crypt_type = crypt_type
 
         if self.crypt_type.lower() == "encrypt":
@@ -148,6 +153,7 @@ class _CryptParent:
                     exit()
 
     def MakeStringDictList(self):
+        """ Index each letter of the given string (either encrypted or plain) and add it to a dictionary."""
         string_dict_list = []
         for x in range(len(self.text_to_crypt)):
             string_dict_list.append({x: ord(self.text_to_crypt[x])})
@@ -155,6 +161,7 @@ class _CryptParent:
         return string_dict_list
 
     def convert_to_chr(self, f_out, crypt_type):
+        """ Convert the transformed ASCII (numerical) values to characters."""
         chr_list = []
         for x in self.transformed_ascii_values:
             for y in x.keys():
@@ -190,6 +197,8 @@ class DecryptString(_CryptParent):
         self.convert_to_chr(self.file, "Decrypt")
 
     def TransformString(self):
+        """ Take each Numerical ASCII value and transform it,
+        then return it indexed as self.string_dict_list"""
         for x in self.string_dict_list:
             for y in x.keys():
                 x[y] = x[y] - y
@@ -215,6 +224,8 @@ class EncryptString(_CryptParent):
         self.convert_to_chr(self.file, "Encrypt")
 
     def TransformString(self):
+        """ Take each Numerical ASCII value and transform it,
+                then return it indexed as self.string_dict_list"""
         for x in self.string_dict_list:
             for y in x.keys():
                 x[y] = x[y] + y
