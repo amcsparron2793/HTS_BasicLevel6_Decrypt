@@ -205,7 +205,7 @@ class EncryptString(_CryptParent):
         self.file = file
         self.file_content = filecontent
         if not self.file:
-            self.text_to_crypt = self.GetTextToCrypt("Encrypt")
+            self.text_to_crypt, self.crypt_type = self.GetTextToCrypt("Encrypt")
         else:
             self.text_to_crypt = self.file_content
 
