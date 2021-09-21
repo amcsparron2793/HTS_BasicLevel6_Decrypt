@@ -74,6 +74,7 @@ class ChooseCrypt:
         except NoConsoleScreenBufferError as e:
             self.err.error_handle(e)
 
+        # noinspection PyUnboundLocalVariable
         if q == "string":
             self.file_content = None
             return False
@@ -137,7 +138,7 @@ class _CryptParent:
                 input_text = input("Please enter {} text to be {}: ".format(t1, t2))
 
             if input_text:
-                return input_text
+                return input_text, self.crypt_type
 
             elif not input_text:
                 if yn("input text cannot be blank, would you like to try again?"):
@@ -153,7 +154,7 @@ class _CryptParent:
         # print(string_dict_list)
         return string_dict_list
 
-    def convert_to_chr(self, f_out):
+    def convert_to_chr(self, f_out, crypt_type):
         chr_list = []
         for x in self.transformed_ascii_values:
             for y in x.keys():
@@ -165,8 +166,7 @@ class _CryptParent:
         if not f_out:
             print(''.join(chr_list))
         if f_out:
-            # FIXME: this needs to be custom... or at least marked as encrypt or decrypt
-            with open("../Misc_Project_Files/file_out_{}.txt".format(('{:%m-%d-%Y_%H-%M_00}'.format(
+            with open("../Misc_Project_Files/{}_out_{}.txt".format(crypt_type, ('{:%m-%d-%Y_%H-%M_00}'.format(
                                                                        datetime.now()))), "w") as f:
                 f.write(''.join(chr_list))
 
@@ -187,7 +187,7 @@ class DecryptString(_CryptParent):
         self.string_dict_list = self.MakeStringDictList()
 
         self.transformed_ascii_values = self.TransformString()
-        self.convert_to_chr(self.file)
+        self.convert_to_chr(self.file, "Decrypt")
 
     def TransformString(self):
         for x in self.string_dict_list:
@@ -205,14 +205,14 @@ class EncryptString(_CryptParent):
         self.file = file
         self.file_content = filecontent
         if not self.file:
-            self.text_to_crypt = self.GetTextToCrypt("Encrypt")
+            self.text_to_crypt, self.crypt_type = self.GetTextToCrypt("Encrypt")
         else:
             self.text_to_crypt = self.file_content
 
         self.string_dict_list = self.MakeStringDictList()
 
         self.transformed_ascii_values = self.TransformString()
-        self.convert_to_chr(self.file)
+        self.convert_to_chr(self.file, "Encrypt")
 
     def TransformString(self):
         for x in self.string_dict_list:
