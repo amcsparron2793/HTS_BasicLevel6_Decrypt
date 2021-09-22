@@ -179,6 +179,8 @@ class _CryptParent:
             with open("../Misc_Project_Files/{}_out_{}.txt".format(crypt_type, ('{:%m-%d-%Y_%H-%M_00}'.format(
                                                                        datetime.now()))), "w") as f:
                 f.write(''.join(chr_list))
+            print("file written to {}".format(f.name))
+            system("pause")
 
 
 # noinspection PyAttributeOutsideInit

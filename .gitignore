@@ -5,3 +5,5 @@ __pycache__
 /Misc_Project_Files/no_doc_check
 /Misc_Project_Files/test_text.txt
 /Misc_Project_Files/test_file.txt
+/Misc_Project_Files/Encrypt_out_*.txt
+/Misc_Project_Files/Decrypt_out_*.txt
