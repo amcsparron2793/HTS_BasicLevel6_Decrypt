@@ -53,8 +53,13 @@ py_ver_float = float(str(version_info.major) + '.' + str(version_info.minor))
 def main_func(dev=False):
     """ Main Program function. """
     if not dev:
-        # TODO: add option to try again
         BasicEncDec.ChooseCrypt()
+        while True:
+            if yn("Would you like to try again?"):
+                main_func(False)
+            else:
+                print("Goodbye!")
+                exit(0)
     elif dev:
         if version_info.major == 3:
             print("checking for docstrings now...")
@@ -91,6 +96,8 @@ def get_docs():
 
 
 def doc_check():
+    """Checks for documentation and offers to create it
+    if the no_doc_check token IS NOT Present."""
     if not isfile(doc_check_token_path):
         if py_ver_float <= 2.9:
             print("Program Documentation could not be generated, please use python 3 or greater.")
