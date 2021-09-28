@@ -44,7 +44,16 @@ elif 'CustomLog_Classes' in modules:
 elif 'dependencies.CustomLog_Classes' not in modules:
     print("CustomLog_Classes not in modules!!")
 
-doc_check_token_path = "../Misc_Project_Files/no_doc_check"
+try:
+    if isdir("../Misc_Project_Files"):
+        doc_check_token_path = "../Misc_Project_Files/no_doc_check"
+    elif isdir("./Misc_Project_Files"):
+        doc_check_token_path = "./Misc_Project_Files/no_doc_check"
+except FileNotFoundError as e:
+    try:
+        err.error_handle(e)
+    except UnboundLocalError as e:
+        print(e.with_traceback)
 
 py_ver_float = float(str(version_info.major) + '.' + str(version_info.minor))
 
